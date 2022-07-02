@@ -2,46 +2,55 @@ import "./App.css";
 import { useState } from "react";
 import axios from "axios";
 
-import Card from "./Components/Card";
-
 function App() {
-  const [search, setSearch] = useState("");
-  const [bookData, setData] = useState([]);
+  const [book, setBook] = useState("");
+  const [result, setResult] = useState([]);
   const [apiKey, setApiKey] = useState(
-    "AIzaSyAA5TVVlnC9_B9IBbytM9nFpzuBBY8YfiI"
+    "AIzaSyBIKYk6ddRdmmLTb4M6f5JbNQsT-2JVg6M"
   );
 
+  const handleChangeBook = (e) => {
+    setBook(e.target.value);
+  };
+
   const searchBook = (e) => {
-    if (e.key === "Enter") {
-      axios
-        .get(
-          "https://www.googleapis.com/books/v1/volumes?q=" +
-            search +
-            "&key=" +
-            apiKey +
-            "&maxResults=40"
-        )
-        .then((res) => setData(res.data.items));
-    }
+    e.preventDefault();
+    axios
+      .get(
+        `https://www.googleapis.com/books/v1/volumes?q=${book}&key=${apiKey}&maxResults=40`
+      )
+      .then((data) => {
+        // setResult(data.data.items);
+        console.log(data);
+      })
+      .catch((err) => console.log(err));
   };
 
   return (
     <>
-      <div className="header">
-        <div className="">
-          <h2>Find Your Book</h2>
-          <input
-            type="text"
-            placeholder="Enter Your Book Name"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            onKeyPress={searchBook}
-          />
-          <button className="">Search</button>
-        </div>
-      </div>
+      <div className="container">
+        <h1>Find Your Book</h1>
+        <form onSubmit={searchBook}>
+          <div className="form-group">
+            <input
+              className="form-control"
+              type="text"
+              placeholder="Enter Your Book Name"
+              autoComplete="off"
+              value={book}
+              onChange={handleChangeBook}
+            />
+          </div>
 
-      <div>{<Card book={bookData} />}</div>
+          <button className="btn btn-danger">Search</button>
+        </form>
+
+        {result.map((book) => {
+          <a target="_blank" href={book.volumeInfo.previewLink}>
+            <img src={book.volumeInfo.imageLinks.thumbnail} alt={book.title} />;
+          </a>;
+        })}
+      </div>
     </>
   );
 }
